@@ -1,0 +1,97 @@
+<!-- Swiper CSS & JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+
+<!-- PhotoSwipe CSS & JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe.css"/>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe.umd.min.js"></script>
+
+<div class="pranshubaghel-gallery">
+  <!-- Thumbnails -->
+  <div class="swiper pranshubaghel-thumbs">
+    <div class="swiper-wrapper">
+      {% for media in product.media %}
+        <div class="swiper-slide pranshubaghel-thumb-item" data-media-id="{{ media.id }}">
+          {% if media.media_type == 'image' %}
+            <img src="{{ media | image_url: width: 150 }}" alt="{{ media.alt | escape }}" loading="lazy">
+          {% elsif media.media_type == 'video' %}
+            {{ media.preview_image | image_url: width: 150 | image_tag }}
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Main Slider -->
+  <div class="swiper pranshubaghel-main">
+    <div class="swiper-wrapper">
+      {% for media in product.media %}
+        <div class="swiper-slide pranshubaghel-main-item">
+          {% if media.media_type == 'image' %}
+            <a href="{{ media | image_url: width: 2000 }}" data-pswp-width="2000" data-pswp-height="1500" data-cropped="true">
+              <img src="{{ media | image_url: width: 1000 }}" alt="{{ media.alt | escape }}" loading="lazy">
+            </a>
+          {% elsif media.media_type == 'video' %}
+            <video controls class="pranshubaghel-main-video">
+              <source src="{{ media | video_url }}" type="video/mp4">
+            </video>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Controls -->
+    <div class="swiper-button-prev pranshubaghel-prev"></div>
+    <div class="swiper-button-next pranshubaghel-next"></div>
+  </div>
+</div>
+
+<!-- Root element for PhotoSwipe -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true"></div>
+
+<style>
+.pranshubaghel-gallery { display: flex; gap: 20px; align-items: flex-start; }
+.pranshubaghel-thumbs { width: 90px; flex-shrink: 0; }
+.pranshubaghel-thumbs img { width: 100%; border-radius: 6px; border: 2px solid transparent; cursor: pointer; }
+.pranshubaghel-thumbs .swiper-slide-thumb-active img { border-color: #000; }
+.pranshubaghel-main { flex: 1; }
+.pranshubaghel-main img, .pranshubaghel-main video { width: 100%; max-height: 650px; object-fit: contain; border-radius: 8px; }
+@media (max-width: 768px) {
+  .pranshubaghel-gallery { flex-direction: column; }
+  .pranshubaghel-thumbs { order: 2; width: 100%; }
+  .pranshubaghel-main { order: 1; }
+  .pranshubaghel-thumbs .swiper-wrapper { display: flex; justify-content: center; }
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Thumbnail slider
+  var thumbSwiper = new Swiper(".pranshubaghel-thumbs", {
+    direction: "vertical",
+    slidesPerView: 4,
+    spaceBetween: 10,
+    watchSlidesProgress: true,
+    breakpoints: {
+      0: { direction: "horizontal", slidesPerView: 1 },
+      768: { direction: "vertical", slidesPerView: 4 }
+    }
+  });
+
+  // Main slider
+  var mainSwiper = new Swiper(".pranshubaghel-main", {
+    spaceBetween: 10,
+    loop: true,
+    navigation: { nextEl: ".pranshubaghel-next", prevEl: ".pranshubaghel-prev" },
+    thumbs: { swiper: thumbSwiper }
+  });
+
+  // PhotoSwipe lightbox
+  const lightbox = new PhotoSwipeLightbox({
+    gallery: '.pranshubaghel-main',
+    children: 'a',
+    pswpModule: () => import('https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe.esm.js')
+  });
+  lightbox.init();
+});
+</script>
